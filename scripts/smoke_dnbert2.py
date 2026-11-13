@@ -36,6 +36,17 @@ def main() -> None:
     model = AutoModel.from_pretrained(
         args.model_dir, trust_remote_code=True, local_files_only=True
     ).to(device).eval()
+    # The pinned checkpoint's Triton kernel uses an API removed from current Triton.
+    # Its attention module has a PyTorch branch selected by this flag. In eval
+    # mode, the actual nn.Dropout remains disabled; only the branch changes.
+    attention_layers = [
+        module for module in model.modules()
+        if module.__class__.__name__ == "BertUnpadSelfAttention"
+    ]
+    if not attention_layers:
+        raise RuntimeError("No DNABERT-2 attention layers found for PyTorch fallback")
+    for module in attention_layers:
+        module.p_dropout = 1.0
     load_s = perf_counter() - started
 
     dna = [DNA, DNA + "ACGTACGTACGT"]
@@ -61,6 +72,8 @@ def main() -> None:
         "model_dir": str(args.model_dir),
         "device": device,
         "torch": torch.__version__,
+        "attention_backend": "pytorch",
+        "attention_layers": len(attention_layers),
         "token_lengths": token_lengths,
         "hidden_shape": list(hidden.shape),
         "embedding_shape": list(embeddings.shape),
