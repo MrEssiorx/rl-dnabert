@@ -1,0 +1,15 @@
+__pycache__/
+__marimo__/
+*.py[oc]
+.venv/
+build/
+dist/
+*.egg-info/
+nohup.out
+/data/*
+!/data/.gitkeep
+/artifacts/*
+!/artifacts/.gitkeep
+*.log
+.env
+.env.*
