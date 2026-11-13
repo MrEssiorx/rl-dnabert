@@ -53,13 +53,13 @@ cd rloops-llm-research
 uv sync --locked
 uv run python scripts/fetch_dnbert2.py
 mkdir -p artifacts
-sbatch -A <project-id> -p gpu-ef-quick -G 1 -c 4 --time=00:15:00 \
+sbatch -A <project-id> -p test -G 1 -c 4 --time=00:05:00 \
   --output=artifacts/dnbert2-smoke-%j.log \
   --wrap='cd "$SLURM_SUBMIT_DIR" && .venv/bin/python scripts/smoke_dnbert2.py --device cuda'
 ```
 
-Check the resulting Slurm log and `sacct` for elapsed time and peak memory. The official [cHARISMa run instructions](https://hpc.hse.ru/instructions/run) allow installation and lightweight checks on the login node, while computations belong on compute nodes; `gpu-ef-quick` is a preemptible student-accessible A100/H100 queue. The cluster procedure is a prepared recipe until an actual GPU job verifies it.
-On the tested cHARISMa configuration, Slurm rejected `--mem=16G` with “Memory specification can not be satisfied”; omit that option unless the cluster's memory accounting changes.
+Check the resulting Slurm log and `sacct` for elapsed time and peak memory. The official [cHARISMa run instructions](https://hpc.hse.ru/instructions/run) allow installation and lightweight checks on the login node, while computations belong on compute nodes. The `test` partition is available to the student account and may assign a V100. The pinned `torch==2.14.1+cu126` comes from the official PyTorch CUDA 12.6 wheel index; the previous `torch==2.15.0+cu132` build could load the model on V100 but failed at the first GPU operation because it had no V100 kernels. This updated setup still needs a successful GPU smoke test.
+On the tested cHARISMa configuration, Slurm rejected `--mem=16G` with “Memory specification can not be satisfied”; omit that option unless the cluster's memory accounting changes. The student account was denied access to A100/H100/H200 node features.
 
 ## Genomic annotation pilot
 
