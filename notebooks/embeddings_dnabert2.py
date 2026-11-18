@@ -315,13 +315,16 @@ def _(embeddings, explained, mean_embedding, directions, metadata,
             ax.scatter(positive_xy[selected, 0], positive_xy[selected, 1],
                        s=3, alpha=0.3, c=color, edgecolors="none", rasterized=True,
                        label=f"{source} (n={selected.sum():,})")
-        ax.set_title(title)
-        ax.set_xlabel(f"PC1 · {variances[0]:.1%} дисперсии")
-        ax.set_ylabel(f"PC2 · {variances[1]:.1%} дисперсии")
+        ink = "#20252B"
+        ax.set_title(title, color=ink)
+        ax.set_xlabel(f"PC1 · {variances[0]:.1%} дисперсии", color=ink)
+        ax.set_ylabel(f"PC2 · {variances[1]:.1%} дисперсии", color=ink)
+        ax.tick_params(colors=ink)
         ax.grid(color="#E6E9ED", linewidth=0.7)
         ax.set_axisbelow(True)
         ax.spines[["top", "right"]].set_visible(False)
-        ax.legend(frameon=False, markerscale=4)
+        ax.spines[["bottom", "left"]].set_color(ink)
+        ax.legend(frameon=False, markerscale=4, labelcolor=ink)
         return fig
 
     negative_on_peak_pca = (
